@@ -1,0 +1,85 @@
+name: Download Youtube videos from urls.txt
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yt-dlp, ffmpeg, aria2
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg aria2
+          sudo curl -L -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
+          sudo chmod +x /usr/local/bin/yt-dlp
+
+      - name: Download videos with custom quality
+        run: |
+          mkdir -p downloads temp_downloads
+
+          while read -r line; do
+            # skip empty lines and comments
+            [ -z "$line" ] && continue
+            echo "$line" | grep -q '^#' && continue
+
+            # extract url and quality (default to best)
+            url=$(echo "$line" | awk '{print $1}')
+            quality=$(echo "$line" | awk '{print $2}')
+            [ -z "$quality" ] && quality="best"
+
+            # build format selector
+            case "$quality" in
+              360) format="bestvideo[height<=360]+bestaudio/best[height<=360]" ;;
+              480) format="bestvideo[height<=480]+bestaudio/best[height<=480]" ;;
+              720) format="bestvideo[height<=720]+bestaudio/best[height<=720]" ;;
+              1080) format="bestvideo[height<=1080]+bestaudio/best[height<=1080]" ;;
+              best) format="bestvideo+bestaudio/best" ;;
+              *) format="bestvideo+bestaudio/best" ;;
+            esac
+
+            echo "Downloading $url at quality: $quality"
+            yt-dlp -f "$format" \
+              --external-downloader aria2c \
+              -o "temp_downloads/%(title)s_%(id)s.%(ext)s" \
+              "$url"
+          done < urls.txt
+
+      - name: Split files larger than 90MB (because GitHub limits 100MB)
+        run: |
+          LIMIT=$((90 * 1024 * 1024))
+
+          for FILE in temp_downloads/*; do
+            [ -f "$FILE" ] || continue
+            SIZE=$(stat -c%s "$FILE")
+            BASENAME=$(basename "$FILE")
+
+            if [ "$SIZE" -gt "$LIMIT" ]; then
+              echo "Splitting $BASENAME (size: $(( SIZE / 1024 / 1024 )) MB)"
+              zip -s 90m "downloads/${BASENAME}.zip" "$FILE"
+            else
+              cp "$FILE" "downloads/$BASENAME"
+            fi
+          done
+
+          rm -rf temp_downloads
+
+      - name: Push to repo
+        run: |
+          if [ -z "$(ls -A downloads 2>/dev/null)" ]; then
+            echo "No files downloaded."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add downloads/
+          git commit -m "add youtube videos from urls.txt [skip ci]" || echo "nothing new"
+          git push
