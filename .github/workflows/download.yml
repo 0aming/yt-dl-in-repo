@@ -3,6 +3,8 @@ name: Download Youtube videos from urls.txt
 on:
   push:
     branches: [ main, master ]
+    paths:
+      - 'urls.txt'
   workflow_dispatch:
 
 jobs:
@@ -13,17 +15,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Install yt-dlp, ffmpeg, aria2
+      - name: Install yt-dlp, ffmpeg, aria2, Deno, and rar
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg aria2
+          sudo apt-get install -y ffmpeg aria2 rar
           sudo curl -L -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
           sudo chmod +x /usr/local/bin/yt-dlp
+          sudo curl -fsSL https://deno.land/install.sh | sh
+          echo "$HOME/.deno/bin" >> $GITHUB_PATH
 
-      - name: Decode YouTube cookies from secret
+      - name: Decode YouTube cookies
         run: |
-          echo "${{ secrets.YOUTUBE_COOKIES }}" | base64 -d > cookies.txt
+          printf '%s' "${{ secrets.YOUTUBE_COOKIES }}" | base64 -d > cookies.txt
 
       - name: Download videos
         run: |
@@ -35,38 +41,42 @@ jobs:
             quality=$(echo "$line" | awk '{print $2}')
             [ -z "$quality" ] && quality="best"
             case "$quality" in
-              360) format="bestvideo[height<=360]+bestaudio/best[height<=360]" ;;
-              480) format="bestvideo[height<=480]+bestaudio/best[height<=480]" ;;
-              720) format="bestvideo[height<=720]+bestaudio/best[height<=720]" ;;
-              1080) format="bestvideo[height<=1080]+bestaudio/best[height<=1080]" ;;
-              *) format="bestvideo+bestaudio/best" ;;
+              360) format="bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[height<=360]" ;;
+              480) format="bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480]" ;;
+              720) format="bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720]" ;;
+              1080) format="bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]" ;;
+              *) format="bestvideo[ext=mp4]+bestaudio[ext=m4a]/best" ;;
             esac
-            yt-dlp -f "$format" --external-downloader aria2c --cookies cookies.txt -o "temp_downloads/%(title)s_%(id)s.%(ext)s" "$url"
+            echo "Downloading $url (quality: $quality)"
+            yt-dlp -f "$format" --external-downloader aria2c --cookies cookies.txt --js-runtimes deno --remote-components ejs:github -o "temp_downloads/%(title)s_%(id)s.%(ext)s" "$url" || echo "Warning: download failed for $url"
           done < urls.txt
 
-      - name: Split large files (>90MB)
+      - name: Split large files using rar
         run: |
           LIMIT=$((90 * 1024 * 1024))
+          mkdir -p downloads
           for FILE in temp_downloads/*; do
             [ -f "$FILE" ] || continue
             SIZE=$(stat -c%s "$FILE")
             BASENAME=$(basename "$FILE")
             if [ "$SIZE" -gt "$LIMIT" ]; then
-              zip -s 90m "downloads/${BASENAME}.zip" "$FILE"
+              echo "Splitting $BASENAME ($(( SIZE / 1024 / 1024 )) MB)"
+              rar a -v90m -ep1 "downloads/${BASENAME}.rar" "$FILE"
             else
               cp "$FILE" "downloads/$BASENAME"
             fi
           done
-          rm -rf temp_downloads cookies.txt
+          rm -rf temp_downloads
 
-      - name: Push to repo
+      - name: Commit and push
         run: |
           if [ -z "$(ls -A downloads 2>/dev/null)" ]; then
-            echo "No files downloaded."
+            echo "No files to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add downloads/
-          git commit -m "add youtube videos from urls.txt [skip ci]" || echo "nothing new"
-          git push
+          git commit -m "add youtube videos from urls.txt [skip ci]" || echo "nothing new to commit"
+          git pull --rebase origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}
