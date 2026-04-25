@@ -1,5 +1,6 @@
 # yt-dl-in-repo
 
+This tool uses **yt-dlp** (with **aria2** for faster multi-connection downloads) to fetch YouTube videos.
 Download YouTube videos into your repo by adding links to `urls.txt`.
 
 ## How it works
@@ -16,9 +17,9 @@ Download YouTube videos into your repo by adding links to `urls.txt`.
 
 ## Example `urls.txt`
 
-https://youtu.be/abc123 720
-https://youtu.be/def456 1080
-https://youtu.be/ghi789 best
+- https://youtu.be/abc123 720
+- https://youtu.be/def456 1080
+- https://youtu.be/ghi789 best
 
 ## Notes
 
