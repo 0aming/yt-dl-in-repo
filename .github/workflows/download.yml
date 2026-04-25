@@ -21,55 +21,43 @@ jobs:
           sudo curl -L -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
           sudo chmod +x /usr/local/bin/yt-dlp
 
-      - name: Download videos with custom quality
+      - name: Decode YouTube cookies from secret
+        run: |
+          echo "${{ secrets.YOUTUBE_COOKIES }}" | base64 -d > cookies.txt
+
+      - name: Download videos
         run: |
           mkdir -p downloads temp_downloads
-
           while read -r line; do
-            # skip empty lines and comments
             [ -z "$line" ] && continue
             echo "$line" | grep -q '^#' && continue
-
-            # extract url and quality (default to best)
             url=$(echo "$line" | awk '{print $1}')
             quality=$(echo "$line" | awk '{print $2}')
             [ -z "$quality" ] && quality="best"
-
-            # build format selector
             case "$quality" in
               360) format="bestvideo[height<=360]+bestaudio/best[height<=360]" ;;
               480) format="bestvideo[height<=480]+bestaudio/best[height<=480]" ;;
               720) format="bestvideo[height<=720]+bestaudio/best[height<=720]" ;;
               1080) format="bestvideo[height<=1080]+bestaudio/best[height<=1080]" ;;
-              best) format="bestvideo+bestaudio/best" ;;
               *) format="bestvideo+bestaudio/best" ;;
             esac
-
-            echo "Downloading $url at quality: $quality"
-            yt-dlp -f "$format" \
-              --external-downloader aria2c \
-              -o "temp_downloads/%(title)s_%(id)s.%(ext)s" \
-              "$url"
+            yt-dlp -f "$format" --external-downloader aria2c --cookies cookies.txt -o "temp_downloads/%(title)s_%(id)s.%(ext)s" "$url"
           done < urls.txt
 
-      - name: Split files larger than 90MB (because GitHub limits 100MB)
+      - name: Split large files (>90MB)
         run: |
           LIMIT=$((90 * 1024 * 1024))
-
           for FILE in temp_downloads/*; do
             [ -f "$FILE" ] || continue
             SIZE=$(stat -c%s "$FILE")
             BASENAME=$(basename "$FILE")
-
             if [ "$SIZE" -gt "$LIMIT" ]; then
-              echo "Splitting $BASENAME (size: $(( SIZE / 1024 / 1024 )) MB)"
               zip -s 90m "downloads/${BASENAME}.zip" "$FILE"
             else
               cp "$FILE" "downloads/$BASENAME"
             fi
           done
-
-          rm -rf temp_downloads
+          rm -rf temp_downloads cookies.txt
 
       - name: Push to repo
         run: |
@@ -77,7 +65,6 @@ jobs:
             echo "No files downloaded."
             exit 0
           fi
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add downloads/
