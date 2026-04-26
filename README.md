@@ -10,12 +10,12 @@ A simple tool that downloads YouTube (and maybe other sites) videos into your Gi
    Go to your repo: `Settings` → `Actions` → `General` → `Workflow permissions` → select `Read and write permissions` → `Save`.
 
 2. **Get YouTube cookies** (to avoid bot errors)  
-   - Use a browser extension like "Get cookies.txt LOCALLY" to export cookies in `Netscape` format.  
+   - Use a browser extension like "Get cookies.txt LOCALLY" to export cookies in `Netscape` format.
+   > For detailed instructions on how to export your YouTube cookies, please refer to the [yt-dlp wiki](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies).
    - Convert to a single‑line base64 string: `base64 -w 0 cookies.txt`  
    - In your repo: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`  
      Name: `YOUTUBE_COOKIES`  
      Value: paste the base64 string.
-   > For detailed instructions on how to export your YouTube cookies, please refer to the [yt-dlp wiki](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies).
 
 ## Usage
 
