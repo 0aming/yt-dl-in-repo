@@ -34,11 +34,11 @@ Downloaded files go into the `downloads/` folder. If a file is larger than 90MB 
 - Go to the `Actions` tab → click the latest workflow run to see logs.  
 - When it finishes, go back to the `Code` tab → open the `downloads/` folder.
 
-> ⚠️ **!!! COOKIES EXPIRE !!!**  
-> After ~3-5 months, the secret `YOUR_COOKIES` becomes invalid.  
-> → Export a fresh `cookies.txt` (Netscape format)  
-> → Encode to base64 (`base64 -w 0 cookies.txt`)  
-> → Update the secret in your repo `Settings`.
+# ⚠️ **!!! COOKIES EXPIRE !!!**  
+ After ~3-5 months, the secret `YOUR_COOKIES` becomes invalid.  
+ → Export a fresh `cookies.txt` (Netscape format)  
+ → Encode to base64 (`base64 -w 0 cookies.txt`)  
+ → Update the secret in your repo `Settings`.
 
 ## Beyond YouTube
 
