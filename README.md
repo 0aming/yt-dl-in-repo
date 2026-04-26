@@ -48,4 +48,4 @@ Because this uses [yt-dlp](https://github.com/yt-dlp/yt-dlp), it works with 1800
  
 ## Acknowledgments
 
-- Inspired by [github-sandbox](https://github.com/maanimis/github-sandbox) by [Meisam Maani](https://github.com/maanimis).
+- Inspired by [github-sandbox](https://github.com/maanimis/github-sandbox) by [Meisam Maani](https://github.com/maanimis). The idea of triggering downloads via commit messages comes from that project.
