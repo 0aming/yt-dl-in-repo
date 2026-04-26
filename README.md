@@ -1,52 +1,41 @@
 # yt-dl-in-repo
 
-Download YouTube (and 1800+ other sites) videos directly into your GitHub repo by writing URLs in `urls.txt`.
+A simple tool that downloads YouTube (and maybe other sites) videos into your GitHub repo by adding links to `urls.txt`. Uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [aria2](https://github.com/aria2/aria2) for fast downloads.
 
 ## Setup
 
-1. **Enable write permissions for Actions**  
-   Go to `Settings` → `Actions` → `General` → `Workflow permissions` → select `Read and write permissions` → `Save`.
+1. **Give Actions write permission**  
+   Go to your repo: `Settings` → `Actions` → `General` → `Workflow permissions` → select `Read and write permissions` → `Save`.
 
-2. **Add YouTube cookies (required to avoid bot blocks)**  
-   - Export cookies from your browser as Netscape format (use extension like "Get cookies.txt LOCALLY").  
-   - Encode `cookies.txt` to base64 (one line):  
-     `base64 -w 0 cookies.txt`  
-   - In your repo: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`.  
+2. **Get YouTube cookies** (to avoid bot errors)  
+   - Use a browser extension like "Get cookies.txt LOCALLY" to export cookies in Netscape format.  
+   - Convert to a single‑line base64 string: `base64 -w 0 cookies.txt`  
+   - In your repo: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`  
      Name: `YOUTUBE_COOKIES`  
-     Value: paste the long base64 string.  
+     Value: paste the base64 string.
 
 ## Usage
 
-1. Create `urls.txt` in the root of your repo.  
-2. Each line: `VIDEO_URL QUALITY` (quality optional: `360`, `480`, `720`, `1080`, `best`).  
-   Example:
-   - https://youtu.be/abc123 720
-   - https://youtu.be/def456 1080
-   - https://youtu.be/ghi789 best
+Edit the existing `urls.txt` file in the root of your repo. Each line: a video URL, optionally followed by a quality number. Supported qualities: `360`, `480`, `720`, `1080`, `best` (default is `best`).
 
-3. Commit and push `urls.txt`. The workflow will trigger automatically (only when this file changes).
+Example:
+- https://youtu.be/abc123 720
+- https://youtu.be/def456 1080
+- https://youtu.be/ghi789 best
+
+Then commit and push. The workflow runs **only when `urls.txt` changes**.
 
 ## Output
 
-- Downloaded files appear in the `downloads/` folder.  
-- If a video is larger than 90MB (GitHub’s soft limit), it is automatically split into `.part1.rar`, `.part2.rar`, … volumes.  
-- To reassemble: extract `part1.rar` with any archive tool (WinRAR, 7-Zip, `unrar`).  
+Downloaded files go into the `downloads/` folder. If a file is larger than 90MB (GitHub’s 100MB limit), it gets split into `.part1.rar`, `.part2.rar`, etc. To reassemble, extract `part1.rar` with any archive tool (WinRAR, 7-Zip, `unrar`).
 
 ## Checking the result
 
 - Go to the `Actions` tab → click the latest workflow run to see logs.  
-- After a successful run, go back to the `Code` tab → open the `downloads/` folder to find your files.
+- When it finishes, go back to the `Code` tab → open the `downloads/` folder.
 
-## Cookie expiration
-
-YouTube cookies expire after a few months. When downloads start failing with a `Sign in to confirm you’re not a bot` error, you need to refresh the cookie:  
-- Export a fresh `cookies.txt` from your browser.  
-- Re‑encode it to base64 and update the `YOUTUBE_COOKIES` secret.  
+> **Warning:** YouTube cookies expire after a few months. If you see a `Sign in to confirm you’re not a bot` error, refresh the cookie: export a fresh `cookies.txt`, re‑encode to base64, and update the `YOUTUBE_COOKIES` secret.
 
 ## Beyond YouTube
 
-Because this tool uses `yt-dlp`, it supports **over 1800 sites** including Twitter, Instagram, Twitch, TikTok, Vimeo, SoundCloud, and many more. For most of them, just put the URL in `urls.txt` – no extra config needed. Some sites may require their own cookies (same method as YouTube).
-
-## License
-
-MIT
+Because this uses `yt-dlp`, it works with 1800+ sites (Twitter, Instagram, Twitch, TikTok, Vimeo, SoundCloud, etc.). For most, just paste the URL. Some may need their own cookies (same method as YouTube).
