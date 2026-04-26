@@ -40,6 +40,7 @@ Downloaded files go into the `downloads/` folder. If a file is larger than 90MB 
 
 Because this uses [yt-dlp](https://github.com/yt-dlp/yt-dlp), it works with 1800+ sites (Twitter, Instagram, Twitch, TikTok, Vimeo, SoundCloud, etc.). For most, just paste the URL. Some may need their own cookies (same method as YouTube).
 
+
 # ⚠️ **!!! COOKIES EXPIRE !!!**  
  After ~3-5 months, the secret `YOUR_COOKIES` becomes invalid.  
  → Export a fresh `cookies.txt` (Netscape format)  
