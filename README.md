@@ -20,7 +20,7 @@ Edit the existing `urls.txt` file in the root of your repo. Each line: a video U
 
 Example:
 - https://youtu.be/abc123 720
-- https://youtu.be/def456 1080
+- https://youtu.be/def456 
 - https://youtu.be/ghi789 best
 
 Then commit and push. The workflow runs **only when `urls.txt` changes**.
