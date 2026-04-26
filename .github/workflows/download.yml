@@ -34,6 +34,7 @@ jobs:
       - name: Download videos
         run: |
           mkdir -p downloads temp_downloads
+          failed=0
           while read -r line; do
             [ -z "$line" ] && continue
             echo "$line" | grep -q '^#' && continue
@@ -48,8 +49,15 @@ jobs:
               *) format="bestvideo[ext=mp4]+bestaudio[ext=m4a]/best" ;;
             esac
             echo "Downloading $url (quality: $quality)"
-            yt-dlp -f "$format" --external-downloader aria2c --cookies cookies.txt --js-runtimes deno --remote-components ejs:github -o "temp_downloads/%(title)s_%(id)s.%(ext)s" "$url" || echo "Warning: download failed for $url"
+            if ! yt-dlp -f "$format" --external-downloader aria2c --cookies cookies.txt --js-runtimes deno --remote-components ejs:github -o "temp_downloads/%(title)s_%(id)s.%(ext)s" "$url"; then
+              echo "ERROR: Download failed for $url"
+              failed=1
+            fi
           done < urls.txt
+          if [ $failed -eq 1 ]; then
+            echo "At least one download failed. Exiting with error."
+            exit 1
+          fi
 
       - name: Split large files using rar
         run: |
