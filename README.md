@@ -45,3 +45,7 @@ Because this uses [yt-dlp](https://github.com/yt-dlp/yt-dlp), it works with 1800
  → Export a fresh `cookies.txt` (Netscape format)  
  → Encode to base64 (`base64 -w 0 cookies.txt`)  
  → Update the secret in your repo `Settings`.
+ 
+## Acknowledgments
+
+- Inspired by [github-sandbox](https://github.com/maanimis/github-sandbox) by [Meisam Maani](https://github.com/maanimis).
