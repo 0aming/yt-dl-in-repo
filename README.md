@@ -4,6 +4,8 @@ A simple tool that downloads YouTube (and maybe other sites) videos into your Gi
 
 ## Setup
 
+0.**fork this repo**
+
 1. **Give Actions write permission**  
    Go to your repo: `Settings` → `Actions` → `General` → `Workflow permissions` → select `Read and write permissions` → `Save`.
 
