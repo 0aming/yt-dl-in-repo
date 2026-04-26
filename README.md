@@ -8,7 +8,7 @@ A simple tool that downloads YouTube (and maybe other sites) videos into your Gi
    Go to your repo: `Settings` → `Actions` → `General` → `Workflow permissions` → select `Read and write permissions` → `Save`.
 
 2. **Get YouTube cookies** (to avoid bot errors)  
-   - Use a browser extension like "Get cookies.txt LOCALLY" to export cookies in Netscape format.  
+   - Use a browser extension like "Get cookies.txt LOCALLY" to export cookies in `Netscape` format.  
    - Convert to a single‑line base64 string: `base64 -w 0 cookies.txt`  
    - In your repo: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`  
      Name: `YOUTUBE_COOKIES`  
@@ -34,12 +34,12 @@ Downloaded files go into the `downloads/` folder. If a file is larger than 90MB 
 - Go to the `Actions` tab → click the latest workflow run to see logs.  
 - When it finishes, go back to the `Code` tab → open the `downloads/` folder.
 
+## Beyond YouTube
+
+Because this uses `yt-dlp`, it works with 1800+ sites (Twitter, Instagram, Twitch, TikTok, Vimeo, SoundCloud, etc.). For most, just paste the URL. Some may need their own cookies (same method as YouTube).
+
 # ⚠️ **!!! COOKIES EXPIRE !!!**  
  After ~3-5 months, the secret `YOUR_COOKIES` becomes invalid.  
  → Export a fresh `cookies.txt` (Netscape format)  
  → Encode to base64 (`base64 -w 0 cookies.txt`)  
  → Update the secret in your repo `Settings`.
-
-## Beyond YouTube
-
-Because this uses `yt-dlp`, it works with 1800+ sites (Twitter, Instagram, Twitch, TikTok, Vimeo, SoundCloud, etc.). For most, just paste the URL. Some may need their own cookies (same method as YouTube).
