@@ -1,6 +1,6 @@
 # yt-dl-in-repo
 
-A simple tool that downloads YouTube (and maybe other sites) videos into your GitHub repo by adding links to `urls.txt`. Uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [aria2](https://github.com/aria2/aria2) for fast downloads.
+A simple tool that downloads YouTube (and maybe other sites) videos into your GitHub repo. Uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [aria2](https://github.com/aria2/aria2) for fast downloads.
 
 ## Setup
 
@@ -34,7 +34,12 @@ Downloaded files go into the `downloads/` folder. If a file is larger than 90MB 
 - Go to the `Actions` tab → click the latest workflow run to see logs.  
 - When it finishes, go back to the `Code` tab → open the `downloads/` folder.
 
-> **Warning:** YouTube cookies expire after a few months. If you see a `Sign in to confirm you’re not a bot` error, refresh the cookie: export a fresh `cookies.txt`, re‑encode to base64, and update the `YOUTUBE_COOKIES` secret.
+> [!WARNING]
+> **YouTube cookies expire after a few months.**  
+> When downloads fail with `Sign in to confirm you're not a bot`, refresh the cookie:  
+> 1. Export fresh `cookies.txt` from your browser  
+> 2. Encode to base64: `base64 -w 0 cookies.txt`  
+> 3. Update the `YOUR_COOKIES` secret in your repo settings
 
 ## Beyond YouTube
 
