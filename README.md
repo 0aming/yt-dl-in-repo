@@ -18,7 +18,7 @@ A simple tool that downloads YouTube (and maybe other sites) videos into your Gi
 
 ## Usage
 
-Edit the existing `urls.txt` file in the root of your repo. Each line: a video URL, optionally followed by a quality number. Supported qualities: `360`, `480`, `720`, `1080`, `best` (default is `best`).
+Place your links in `urls.txt`. Each line: a video URL, optionally followed by a quality number. Supported qualities: `360`, `480`, `720`, `1080`, `best` (default is `best`).
 
 Example:
 - https://youtu.be/abc123 720
